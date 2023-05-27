@@ -1,0 +1,48 @@
+//-----------------------Steps new approach------------------------
+# Big migration will happen inside the DB with SQL scripting
+# It's best practice to build features in the DB, MySQL. 
+# Stored procedures, functions, triggers, vieuws, indexes. 
+# This because, it's safer, data stays on the DB server, and faster, and more re-usable, then writing in code. 
+
+
+//-------------------------- Planned Migration Steps --------------------------
+# Create whole new staging DB, copy
+# Create temp_table(s)
+# Copy into temp 
+# Create new table with new model
+# Migrate from temp to new 
+# Parse, Modify Data as you go in new
+# When done, check, test, does all work
+# Drop old table
+# Rename new table to old table
+# Done. 
+
+//----------------------------- Planned Parsings ------------------------------
+# Split some fields to more columns
+# Add meta-data columsn
+# Change all dates to UNIX timestamp (needed for EO Sync)
+# Validate and Parse data
+# Clean data 
+
+//------------------------------ SQL Statements -------------------------------
+# SQL Statements Are Saved in Github Docs to not cloud this file
+# Also SQL export dump to create your own DB 
+
+
+-- Usefull DB Functions
+LEFT
+LOCATE
+LTRIM
+MID
+POSITION
+REPLACE
+RIGHT
+RTRIM
+
+TRIM
+SUBSTR
+SUBSTRING
+
+CURRENT_TIMESTAMP
+CURTIME
+DATE_FORMAT

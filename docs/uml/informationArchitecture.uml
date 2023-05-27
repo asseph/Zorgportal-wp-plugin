@@ -1,0 +1,335 @@
+@startuml
+allowmixing
+
+skinparam rectangle {
+    roundCorner<<IA>> 54
+}
+
+rectangle "Information Architecture" <<Concept>> {
+
+rectangle "ZP Databases" {  
+    database Invoices
+    database DBC_codes
+    database Practitioners
+    database Customers
+    database Transactions
+    database Settings
+    database Logs
+    database Backups
+    queue EOSync
+}
+
+rectangle "CuraSoft EPD" <<Hospital Software>>{
+
+    class ImportInvoiceFileFields {
+        DebiteurAdres
+        DebiteurMailadres
+        DebiteurTelefoon
+        DeclaratieBedrag
+        DeclaratieDatum
+        DeclaratieNummer
+        DeclaratieDebiteurnummer
+        DeclaratieDebiteurNaam
+        DeclaratieregelOmschrijving
+        DossierNUmmer
+        DossierBehandellocatie
+        SubtrajectNummer
+        DossierNaam
+        SubtrajectStartdatum
+        SubtrajectEinddatum
+        SubtrajectHoofdbehandelaar
+        SubtrajectDiagnosecode
+        SubtrajectDeclaratiecode
+        SubtrajectDeclaratiecodeOmschrijving
+        SubtrajectDeclaratiebedrag
+        ZorgverzekeraarUZOVI
+        ZorgverzekeraarNaam
+        ZorgverzekeraarPakket
+        ==  ..
+        Methods
+        Manual Import Invoices
+        ==
+        End of class
+    }
+    
+    class Translated {
+        DebtorAddress
+        DebtorMail address
+        Debtor Telephone
+        DeclarationAmount
+        DeclarationDate
+        DeclarationNumber
+        Declaration Debtor number
+        DeclarationDebtorName
+        Declaration lineDescription
+        Case number
+        FileTreatment location
+        SubtrackNumber
+        FileName
+        SubtrackStart date
+        Subtrack End date
+        Subtrack Chief Practitioner
+        SubtrackDiagnostic code
+        SubtrackDeclarationcode
+        Sub trajectory Declaration code Description
+        SubtrackDeclaration amount
+        Health insurer UZOVI
+        Health insurerName
+        Health insurance package
+        ==  ..
+        Methods
+        Manual Import Invoices
+        ==
+        End of class
+    }    
+  
+  }
+  
+rectangle "API CALLS Exact Online" <<Accounting Software>> {
+
+rectangle "Auth Flow" {
+    class CreateAPP<Manual> {
+      Login EO Web
+      Customer Creates App
+      ==
+      Input
+      App Name
+      CallbackURL
+      ==
+      Output
+      ClientID
+      ClientSecret
+      WebhookSecret
+      ==
+      Enter in ZP Settings
+    }
+    
+    class getCode {
+      ==
+      INPUT
+      CleintID
+      CallbackURL
+      response_type=code
+      ==
+      Redirect User Login EO
+      ==
+      RESPONSE
+      Redirect CallbackURL
+      Code = in URL
+      ==
+      METHODS
+      Save Code
+      Save TimeStamp
+      Call getToken
+    }
+    
+    class getToken {
+      Called First Time
+      ==
+      INPUT
+      Code
+      RedirectURL
+      grant_type=authorization_code
+      ClientID
+      ClientSecret
+      ==
+      RESPONSE
+      access_token
+      refresh_token
+      token_type
+      expires_in = 600
+      ==
+      METHODS
+      Save access_token
+      Save refresh_token
+      Save expires_in = currentTimeUNIX + 600
+      Call subscribeWebhook
+    }    
+
+    class subscribeWebhook {
+      subscribe when auth
+      un-subscribe when no auth
+      ==
+      INPUT TOPICS TransactionLines
+      Topic = BankEntries
+      CallbackURL
+      OPTIONAL INPUT 2
+      Topic = SalesEntries
+      CallbackURL
+      Call subscribeWebhook
+      ==
+      FUTURE TOPICS
+      Accounts = Customer
+      Contacts
+      SalesEntries = Invoice object in Exact
+      SalesEntryLines = to Update Invoice in Exact
+      SalesInvoices
+      PurchaseEntries = for refunds
+      PurchaseEntryLines
+      GeneralJournalEntries
+      GeneralJournalEntryLines
+      GLAccounts
+      Documents = bank payments import file 
+      Contacts
+      JournalStatusList = subscribe on a journal
+      == 
+      WEBHOOK POST
+      Topic
+      Action = Can be UPDATE
+      Division
+      Key
+      ExactOnlineEndpoint
+      EventCreatedOn
+      HashCode
+      ==
+      METHOD
+      ZP Shoudl Respond 200/201 to confirm receival
+      Save Logs
+      X-RateLimit-Left
+      X-RateLimit-Minutely-Left
+      RateLimit-Reset
+      Minutely-Reset
+      ResponseErrors
+    }
+    
+     class getEoAPI { 
+      to receive actual data, webhook is only a notification
+      Use
+        ExactOnlineEndpoint
+        Division
+        getEoAPI Validations are done
+    }
+    
+    class getEoAPIValidations {
+        Check auth_token
+        Check limits
+        ==
+        METHOD AUTH TOKEN
+        expires_in time - current_time < 30
+          Call refreshToken
+        METHOD LIMITS
+        X-RateLimit-Remaining = 0
+          pushQue
+          WaitTime = RateLimit-Reset - currentTime
+        X-RateLimit-Minutely-Remaining = 0
+          pushQue
+          WaitTime = RateLimit-Minutely - currentTime
+    }
+
+    class pushQue {
+      INPUT
+      URL
+      Timer = WaitTime
+      ==
+      Set Cron-Job
+      cron triggers Que
+    }
+
+    class refreshToken {
+      INPUT
+      grant_type = refresh_token
+      refresh_token
+      ClientID
+      ClientSecret
+      ==
+      RESPONSE
+      same as auth
+      new auth_token
+      refresh_token
+      expires_in
+      do the same
+      ==
+      Save everyting
+      Save access_token
+      Save refresh_token
+      Save expires_in = currentTimeUNIX + 600
+    }
+
+}
+
+  class FinancialTransaction<Exact Online> {
+    ShopOrder
+    Account
+    AccountCode
+    AccountName
+    AmountDC
+    AmountFC
+    AmountVATFC
+    AmountVATBaseFC
+    Asset
+    AssetCode
+    AssetDescription
+    CostCenter
+    CostCenterDescription
+    CostUnit
+    CostUnitDescription
+    Created
+    Creator
+    CreatorFullName
+    Currency
+    Date
+    Description
+    Division
+    Document
+    DocumentNumber
+    DocumentSubject>Bank
+    DueDate
+    EntryID
+    EntryNumber
+    ExchangeRate
+    ExternalLinkDescription
+    ExternalLinkReference
+    ExtraDutyAmountFC
+    ExtraDutyPercentage
+    FinancialPeriod
+    FinancialYear
+    GLAccount
+    GLAccountCode
+    GLAccountDescription
+    InvoiceNumber
+    Item
+    ItemCode
+    ItemDescription
+    JournalCode
+    JournalDescription
+    LineNumber
+    LineType
+    Modified
+    Modifier
+    ModifierFullName>Majed
+    Notes
+    OffsetID
+    OrderNumber
+    PaymentDiscountAmount
+    PaymentReference>SEPA
+    Project
+    ProjectCode
+    ProjectDescription
+    Quantity
+    SerialNumber
+    Status
+    Subscription
+    SubscriptionDescription
+    TrackingNumber
+    TrackingNumberDescription
+    Type
+    VATCode
+    VATCodeDescription
+    VATPercentage
+    VATType
+    YourRef
+    ==  ..
+    Methods
+    getBulk
+    SyncAPI
+    getSingle
+    Webhook
+    ==
+    Subscribed to Webhook.
+    --
+    End of class
+  }
+}
+}
+
+@enduml

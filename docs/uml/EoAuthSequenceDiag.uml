@@ -1,0 +1,85 @@
+@startuml
+participant client
+participant exact
+
+client -> exact : Login to app management 
+activate client
+activate exact
+client -> exact : Create new app
+exact -> client : get Client ID , Client Secret, webhook
+deactivate exact    
+deactivate client
+
+participant zorgportal
+client -> zorgportal : fill in Client ID , Client Secret, webhook
+activate zorgportal
+client -> zorgportal : start auth flow
+zorgportal -> database : save Client ID , Client Secret, webhook
+zorgportal -> session : save Client ID , Client Secret, webhook
+zorgportal -> zorgportal : start auth flow
+zorgportal -> client : redirect to exact login
+client -> exact : login flow (success)
+exact -> zorgportal : redirect with auth code
+zorgportal -> database : save auth code  
+
+zorgportal -> exact : token request (with code)
+activate exact
+exact -> zorgportal : token response with (token, refresh, timers)
+
+deactivate exact
+zorgportal -> session : save token, timers
+zorgportal -> database : save token, timers, refresh
+deactivate zorgportal
+
+participant app
+participant database
+
+... 570 seconds time left  ...
+
+app -> zorgportal : random query
+activate app
+activate zorgportal
+zorgportal -> zorgportal : check time left expired (=ok)
+zorgportal -> exact : query (no problem)
+activate exact
+exact -> zorgportal : response 
+deactivate exact
+zorgportal -> session : set time left expired 
+zorgportal -> app : response
+deactivate zorgportal
+deactivate app
+
+
+
+... <30 seconds time left  ...
+
+app -> zorgportal : query
+activate app
+activate zorgportal
+zorgportal -> zorgportal : check time left expired (=<30 sec)
+zorgportal -> app : retry query
+deactivate app
+
+zorgportal -> exact : refresh token 
+activate exact
+exact -> zorgportal : token response with (token, refresh, timers)
+
+deactivate exact
+zorgportal -> session : save token, timers
+zorgportal -> database : save token, timers, refresh
+deactivate zorgportal
+
+... 1 min retry  ...
+app -> zorgportal : random query
+activate app
+activate zorgportal
+zorgportal -> zorgportal : check time left expired (=ok)
+zorgportal -> exact : query (no problem)
+activate exact
+exact -> zorgportal : response 
+deactivate exact
+zorgportal -> session : set time left expired 
+zorgportal -> app : response
+deactivate zorgportal
+deactivate app
+@enduml

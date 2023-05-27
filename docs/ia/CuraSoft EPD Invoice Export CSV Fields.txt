@@ -1,0 +1,24 @@
+Translated								           		CuraSoft EPD Invoice Export CSV Fields.txt   				
+DebtorAddress								       	 	DebiteurAdres   				
+DebtorMailAddress							      		DebiteurMailadres   				
+DebtorTelephone							           		DebiteurTelefoon   				
+Claim Amount								      	   	DeclaratieBedrag   				
+DeclarationDate							           		DeclaratieDatum   				
+StatementNumber							           		DeclaratieNummer   				
+StatementDeviceeNumber					       			DeclaratieDebiteurnummer   				
+StatementDebtorName						         		DeclaratieDebiteurNaam   				
+Declaration lineDescription				    			DeclaratieregelOmschrijving   				
+FileNumber								           		DossierNUmmer   				
+DossierTreatment Location					    		DossierBehandellocatie   				
+SubtrajectNumber							         	SubtrajectNummer   				
+DossierName								           		DossierNaam   				
+SubtrajectStartDate						         		SubtrajectStartdatum   				
+SubtrajectEnd Date						         		SubtrajectEinddatum   				
+SubpathpathMain practitioner				  			SubtrajectHoofdbehandelaar   				
+SubtrajectDiagnosis code					     		SubtrajectDiagnosecode   				
+SubtrajectDeclarationcode					    		SubtrajectDeclaratiecode   				
+SubtrajectDeclarationcodeDescription					SubtrajectDeclaratiecodeOmschrijving   				
+SubtrajectDeclaration Amount				  			SubtrajectDeclaratiebedrag   				
+Health InsurerUZOVI						         		ZorgverzekeraarUZOVI   	
+Health InsurerName						         		ZorgverzekeraarNaam   				
+Health InsurerPackage						      		ZorgverzekeraarPakket   				
